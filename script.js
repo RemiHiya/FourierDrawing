@@ -23,6 +23,49 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
+canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault(); // empêche le scroll pendant le dessin
+    startDrawing(e.touches[0]);
+});
+canvas.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    stopDrawing(e.changedTouches[0]);
+});
+canvas.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    drawMove(e.touches[0]);
+});
+
+function startDrawing(e) {
+    pressed = true;
+    coords = [];
+    path = [];
+    animating = false;
+}
+
+function stopDrawing(e) {
+    pressed = false;
+    if (coords.length < 2) return;
+    X = computeDFT(coords, precision);
+    time = 0;
+    path = [];
+    animating = true;
+    startTime = performance.now();
+    animate();
+}
+
+function drawMove(e) {
+    if (!pressed) return;
+    const rect = canvas.getBoundingClientRect();
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    coords.push({
+        x: e.clientX - rect.left - cx,
+        y: e.clientY - rect.top - cy
+    });
+    drawPoints();
+}
+
 canvas.addEventListener("mousedown", function () {
     pressed = true;
     coords = [];
